@@ -2,54 +2,81 @@ import React, { Component } from 'react';
 import NewsItem from './NewsItem';
 
 export class News extends Component {
-    articles = [
-        {
-          "source": {
-            "id": "nhl-news",
-            "name": "NHL News"
-          },
-          "author": "Fantasy Hockey Staff",
-          "title": "Boston Bruins fantasy projections for 2023-24",
-          "description": "As part of NHL.com's 32 in 32 series, the fantasy hockey staff put together projections for relevant players on the Boston Bruins.",
-          "url": "https://www.nhl.com/news/boston-bruins-fantasy-projections-for-2023-24/c-345496480",
-          "urlToImage": "https://cms.nhl.bamgrid.com/images/photos/345498440/1024x576/cut.jpg",
-          "publishedAt": "2023-08-03T04:00:00Z",
-          "content": "As part of NHL.com's 32 in 32 series, the fantasy hockey staff put together projections for relevant players on the Boston Bruins. Players are listed in order of fantasy rank for this season. For mor… [+2697 chars]"
-        },
-        {
-          "source": {
-            "id": "nhl-news",
-            "name": "NHL News"
-          },
-          "author": "Adam Kimelman",
-          "title": "Couturier, Atkinson expected to be ready for Flyers training camp",
-          "description": "Sean Couturier and Cam Atkinson are expected to be on the ice for the Philadelphia Flyers when training camp begins next month, according to Flyers president of hockey operations Keith Jones.",
-          "url": "https://www.nhl.com/news/philadelphia-flyers-sean-couturier-cam-atkinson-injury-status/c-345506964",
-          "urlToImage": "https://cms.nhl.bamgrid.com/images/photos/345507166/1024x576/cut.jpg",
-          "publishedAt": "2023-08-02T21:20:00Z",
-          "content": "PLYMOUTH, Mich. --Sean Couturier and Cam Atkinson are expected to be on the ice for the Philadelphia Flyers when training camp begins next month, according to president of hockey operations Keith Jon… [+3692 chars]"
-        }
-      ]
     constructor() {
         super();
-        console.log("news constructor!!! ")
         this.state = {
-            articles: this.articles,
-            loading: false
+            articles: [],
+            loading: false,
+            page: 1,
+            totalResults:0
         }
     }
+
+//  async componentDidMount() {
+//         let newsApiEndpoint = `${process.env.REACT_APP_API_URL}?country=in&apiKey=${process.env.REACT_APP_API_KEY}&page=${this.state.page}&pageSize=${this.props.pageSize}`
+//         console.log("url>> ", newsApiEndpoint)
+//         let data = await fetch(newsApiEndpoint)
+//         let parsedData = await data.json()
+//         console.log("parsed Data >> ", parsedData.articles);
+
+//         this.setState({
+//             articles: parsedData.articles,
+//             totalResults: parsedData.totalResults
+//         })
+
+//     }
+
+    newsData = async(page, pageSize) => {
+        let newsApiEndpoint = `${process.env.REACT_APP_API_URL}?country=in&apiKey=${process.env.REACT_APP_API_KEY}&page=${page}&pageSize=${pageSize}`
+        // console.log("url>> ", newsApiEndpoint)
+        let data = await fetch(newsApiEndpoint)
+        let parsedData = await data.json()
+        // return parsedData
+        this.setState({
+            articles: parsedData.articles
+        })
+
+    }
+
+    prevBtnClickHandler = () => {
+        console.log("prev btn clicked !!!")
+        this.setState({
+            page:this.state.page-1
+        })
+        console.log("page prev >> ", this.state.page)
+
+    }
+    nextBtnClickHandler = () => {
+        console.log("nxt btn clicked !!!", this.state.page)
+        this.setState({
+            page:this.state.page+1
+        })
+
+        // if (!(this.state.page > Math.ceil(this.props.pageSize))){
+        //     this.newsData(this.state.page, this.props.pageSize)
+        // }
+
+        console.log("page nxt >> ", this.state.page)
+
+    }
+
   render() {
+    // console.log("this.state.articles >>>>> ", this.state.articles)
     return (
       <>
         <div className="container my-3">
             <div className="row">
-            {
-                this.state.articles.map((ele) => {
-                    return <div className="col-md-3 my-3" key={ele.url}>
-                                <NewsItem title={ele.title.slice(0,30)} description={ele.description.slice(0,50)} newsUrl={ele.url} imageUrl={ele.urlToImage}/>
-                            </div>
-                })
-            }
+                {
+                    this.state.articles.map((ele) => {
+                        return <div className="col-md-3 my-3" key={ele.url}>
+                                    <NewsItem title={ele.title?ele.title.slice(0,30):""} description={ele.description?ele.description.slice(0,50):""} newsUrl={ele.url || ""} imageUrl={ele.urlToImage || ""}/>
+                                </div>
+                    })
+                }
+            </div>
+            <div className="container d-flex justify-content-between">
+                <button disabled={this.state.page<=1} type="button" className="btn btn-dark" onClick={this.prevBtnClickHandler}>Previous</button>
+                <button disabled={this.state.page > Math.ceil(this.props.pageSize)} type="button" className="btn btn-dark" onClick={this.nextBtnClickHandler}>Next</button>
             </div>
         </div>
       </>
