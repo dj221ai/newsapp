@@ -12,19 +12,19 @@ export class News extends Component {
         }
     }
 
-//  async componentDidMount() {
-//         let newsApiEndpoint = `${process.env.REACT_APP_API_URL}?country=in&apiKey=${process.env.REACT_APP_API_KEY}&page=${this.state.page}&pageSize=${this.props.pageSize}`
-//         console.log("url>> ", newsApiEndpoint)
-//         let data = await fetch(newsApiEndpoint)
-//         let parsedData = await data.json()
-//         console.log("parsed Data >> ", parsedData.articles);
+ async componentDidMount() {
+        let newsApiEndpoint = `${process.env.REACT_APP_API_URL}?country=in&apiKey=${process.env.REACT_APP_API_KEY}&page=${this.state.page}&pageSize=${this.props.pageSize}`
+        console.log("url>> ", newsApiEndpoint)
+        let data = await fetch(newsApiEndpoint)
+        let parsedData = await data.json()
+        console.log("parsed Data >> ", parsedData.articles);
 
-//         this.setState({
-//             articles: parsedData.articles,
-//             totalResults: parsedData.totalResults
-//         })
+        this.setState({
+            articles: parsedData.articles,
+            totalResults: parsedData.totalResults
+        })
 
-//     }
+    }
 
     newsData = async(page, pageSize) => {
         let newsApiEndpoint = `${process.env.REACT_APP_API_URL}?country=in&apiKey=${process.env.REACT_APP_API_KEY}&page=${page}&pageSize=${pageSize}`
