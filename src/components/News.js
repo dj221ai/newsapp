@@ -27,48 +27,45 @@ export class News extends Component {
         }
     }
 
- async componentDidMount() {
+    newsData = async() => {
         let newsApiEndpoint = `${process.env.REACT_APP_API_URL}?country=${this.props.country}&category=${this.props.category}&apiKey=${process.env.REACT_APP_API_KEY}&page=${this.state.page}&pageSize=${this.props.pageSize}`
-        console.log("url>> ", newsApiEndpoint)
-        let data = await fetch(newsApiEndpoint)
-        let parsedData = await data.json()
-        console.log("parsed Data >> ", parsedData.articles);
-
-        this.setState({
-            articles: parsedData.articles,
-            totalResults: parsedData.totalResults
-        })
-
-    }
-
-    newsData = async(page, pageSize) => {
-        let newsApiEndpoint = `${process.env.REACT_APP_API_URL}?country=${this.props.country}&category=${this.props.category}&apiKey=${process.env.REACT_APP_API_KEY}&page=${page}&pageSize=${pageSize}`
         // console.log("url>> ", newsApiEndpoint)
         let data = await fetch(newsApiEndpoint)
         let parsedData = await data.json()
         // return parsedData
         this.setState({
-            articles: parsedData.articles
+            articles: parsedData.articles,
+            totalResults: parsedData.totalResults,
+            loading: false
         })
 
     }
 
-    prevBtnClickHandler = () => {
+ async componentDidMount() {
+        this.newsData()
+    }
+
+    
+
+    prevBtnClickHandler = async () => {
         console.log("prev btn clicked !!!")
-        this.setState({
-            page:this.state.page-1
-        })
+        await this.setState({page:this.state.page-1})
+        this.newsData()
+        // this.setState({ page: this.state.page - 1 }, () => 
+        // this.newsData())
         console.log("page prev >> ", this.state.page)
 
     }
-    nextBtnClickHandler = () => {
+    nextBtnClickHandler = async () => {
         console.log("nxt btn clicked !!!", this.state.page)
-        // this.setState({page:this.state.page+1})
-        // this.setState((prevState, props) => ({ page: prevState.page + 1 }));
+        await this.setState({page:this.state.page+1})
+        this.newsData()
 
-        if (!(this.state.page > Math.ceil(this.props.pageSize))){
-            this.newsData(this.state.page, this.props.pageSize)
-        }
+        // if (!(this.state.page > Math.ceil(this.props.pageSize))){
+        //     this.newsData()
+        // }
+        // this.setState({ page: this.state.page + 1 }, () => 
+        // this.newsData())
 
         console.log("page nxt >> ", this.state.page)
 
@@ -90,7 +87,7 @@ export class News extends Component {
             </div>
             <div className="container d-flex justify-content-between">
                 <button disabled={this.state.page<=1} type="button" className="btn btn-dark" onClick={this.prevBtnClickHandler}>Previous</button>
-                <button type="button" className="btn btn-dark" onClick={this.nextBtnClickHandler} disabled={this.state.page > Math.ceil(this.props.pageSize)}>Next</button>
+                <button disabled={this.state.page > Math.ceil(this.props.pageSize)} type="button" className="btn btn-dark" onClick={this.nextBtnClickHandler}>Next</button>
             </div>
         </div>
       </>
