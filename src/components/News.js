@@ -16,15 +16,21 @@ export class News extends Component {
         category: PropTypes.string
     }
 
+    titleCapitalize = (string) => {
+        return string.charAt(0).toUpperCase() + string.slice(1);
+    }
 
-    constructor() {
-        super();
+
+    constructor(props) {
+        super(props);
         this.state = {
             articles: [],
             loading: false,
             page: 1,
             totalResults:0
         }
+
+        document.title  = `${this.titleCapitalize(this.props.category)} --- NewsApp`
     }
 
     newsData = async() => {
