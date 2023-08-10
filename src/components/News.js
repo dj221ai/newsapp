@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import NewsItem from './NewsItem';
 import PropTypes from 'prop-types';
+import InfiniteScroll from "react-infinite-scroll-component";
 
 export class News extends Component {
 
@@ -39,6 +40,7 @@ export class News extends Component {
         let data = await fetch(newsApiEndpoint)
         let parsedData = await data.json()
         // return parsedData
+        console.log("parsed Data > ", parsedData)
         this.setState({
             articles: parsedData.articles,
             totalResults: parsedData.totalResults,
@@ -57,44 +59,44 @@ export class News extends Component {
         console.log("prev btn clicked !!!")
         await this.setState({page:this.state.page-1})
         this.newsData()
-        // this.setState({ page: this.state.page - 1 }, () => 
-        // this.newsData())
-        console.log("page prev >> ", this.state.page)
 
     }
     nextBtnClickHandler = async () => {
         console.log("nxt btn clicked !!!", this.state.page)
         await this.setState({page:this.state.page+1})
         this.newsData()
-
-        // if (!(this.state.page > Math.ceil(this.props.pageSize))){
-        //     this.newsData()
-        // }
-        // this.setState({ page: this.state.page + 1 }, () => 
-        // this.newsData())
-
-        console.log("page nxt >> ", this.state.page)
-
     }
+
+    fetchMoreData = () => {
+        this.setState({
+            articles:this.state.articles.concat(this.state.articles),
+            page:this.state.page + 1
+        })
+        this.newsData()
+      };
 
   render() {
     // console.log("this.state.articles >>>>> ", this.state.articles)
     return (
       <>
         <div className="container my-3">
+                    <InfiniteScroll
+                    dataLength={this.state.articles.length}
+                    next={this.fetchMoreData}
+                    hasMore={this.state.articles.length !== this.state.totalResults}
+                    loader={<h4>Loading...</h4>}
+                    >
             <div className="row">
-                {
-                    this.state.articles?.map((ele) => {
-                        return <div className="col-md-3 my-3" key={ele.url}>
-                                    <NewsItem title={ele.title?ele.title.slice(0,30):""} description={ele.description?ele.description.slice(0,50):""} newsUrl={ele.url || ""} imageUrl={ele.urlToImage || ""}/>
-                                </div>
-                    })
-                }
+                            {
+                                this.state.articles?.map((ele) => {
+                                    return <div className="col-md-3 my-3" key={ele.url}>
+                                                <NewsItem title={ele.title?ele.title.slice(0,30):""} description={ele.description?ele.description.slice(0,50):""} newsUrl={ele.url || ""} imageUrl={ele.urlToImage || ""}/>
+                                            </div>
+                                })
+                            }
             </div>
-            <div className="container d-flex justify-content-between">
-                <button disabled={this.state.page<=1} type="button" className="btn btn-dark" onClick={this.prevBtnClickHandler}>Previous</button>
-                <button disabled={this.state.page > Math.ceil(this.props.pageSize)} type="button" className="btn btn-dark" onClick={this.nextBtnClickHandler}>Next</button>
-            </div>
+                </InfiniteScroll>
+            
         </div>
       </>
     )
