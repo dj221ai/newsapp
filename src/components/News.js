@@ -35,10 +35,13 @@ export class News extends Component {
     }
 
     newsData = async() => {
+        this.props.setProgress(10);
         let newsApiEndpoint = `${process.env.REACT_APP_API_URL}?country=${this.props.country}&category=${this.props.category}&apiKey=${process.env.REACT_APP_API_KEY}&page=${this.state.page}&pageSize=${this.props.pageSize}`
         // console.log("url>> ", newsApiEndpoint)
         let data = await fetch(newsApiEndpoint)
+        this.props.setProgress(30);
         let parsedData = await data.json()
+        this.props.setProgress(60);
         // return parsedData
         console.log("parsed Data > ", parsedData)
         this.setState({
@@ -46,6 +49,7 @@ export class News extends Component {
             totalResults: parsedData.totalResults,
             loading: false
         })
+        this.props.setProgress(100);
 
     }
 
@@ -55,24 +59,37 @@ export class News extends Component {
 
     
 
-    prevBtnClickHandler = async () => {
-        console.log("prev btn clicked !!!")
-        await this.setState({page:this.state.page-1})
-        this.newsData()
+    // prevBtnClickHandler = async () => {
+    //     console.log("prev btn clicked !!!")
+    //     await this.setState({page:this.state.page-1})
+    //     this.newsData()
 
-    }
-    nextBtnClickHandler = async () => {
-        console.log("nxt btn clicked !!!", this.state.page)
-        await this.setState({page:this.state.page+1})
-        this.newsData()
-    }
+    // }
+    // nextBtnClickHandler = async () => {
+    //     console.log("nxt btn clicked !!!", this.state.page)
+    //     await this.setState({page:this.state.page+1})
+    //     this.newsData()
+    // }
 
-    fetchMoreData = () => {
+    fetchMoreData = async () => {
+        this.setState({page:this.state.page + 1})
+        let newsApiEndpoint = `${process.env.REACT_APP_API_URL}?country=${this.props.country}&category=${this.props.category}&apiKey=${process.env.REACT_APP_API_KEY}&page=${this.state.page}&pageSize=${this.props.pageSize}`
+        // console.log("url>> ", newsApiEndpoint)
+        let data = await fetch(newsApiEndpoint)
+        let parsedData = await data.json()
+        // return parsedData
+        console.log("parsed Data > ", parsedData)
         this.setState({
-            articles:this.state.articles.concat(this.state.articles),
-            page:this.state.page + 1
+            articles: this.state.articles.concat(parsedData.articles),
+            totalResults: parsedData.totalResults
         })
-        this.newsData()
+
+        // this.setState((prevState) => ({
+        //     page: prevState.page+1,
+        //     articles: prevState.articles.concat(this.state.articles)
+        // }))
+
+        // this.newsData()
       };
 
   render() {
@@ -85,6 +102,7 @@ export class News extends Component {
                     next={this.fetchMoreData}
                     hasMore={this.state.articles.length !== this.state.totalResults}
                     loader={<h4>Loading...</h4>}
+                    key={this.state.articles.length}
                     >
             <div className="row">
                             {
